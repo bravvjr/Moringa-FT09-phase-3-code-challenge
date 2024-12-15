@@ -17,18 +17,17 @@ class Author:
 
     def __repr__(self):
         return f"<Author {self.name}>"
-
     # Method to fetch articles written by the author
     def articles(self, cursor):
         cursor.execute("""
-            SELECT articles.id, articles.title, articles.content
+            SELECT articles.id, articles.title, articles.content, articles.magazine_id, magazines.name, magazines.category
             FROM articles
             INNER JOIN authors ON articles.author_id = authors.id
+            INNER JOIN magazines ON articles.magazine_id = magazines.id
             WHERE authors.id = ?
         """, (self.id,))
         articles_data = cursor.fetchall()
-        return [Article(article["id"], article["title"], article["content"], self, Magazine(article["magazine_id"], "", "")) for article in articles_data]
-
+        return [Article(article["id"], article["title"], article["content"], self, Magazine(article["magazine_id"], article["name"], article["category"])) for article in articles_data]
     # Method to fetch magazines associated with the author
     def magazines(self, cursor):
         cursor.execute("""

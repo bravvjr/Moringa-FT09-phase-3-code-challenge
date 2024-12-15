@@ -39,8 +39,8 @@ class Article:
 
     def __repr__(self):
         return f"<Article {self.title} by {self.author.name}>"
-
-    def get_author(self, cursor):
+    
+    def get_author(self, cursor, author_id):
         cursor.execute('SELECT * FROM authors WHERE id = ?', (self._author.id,))
         author_data = cursor.fetchone()
         return Author(author_data["id"], author_data["name"])
