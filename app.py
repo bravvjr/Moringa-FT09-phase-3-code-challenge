@@ -19,19 +19,13 @@ def main():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-
-    '''
-        The following is just for testing purposes, 
-        you can modify it to meet the requirements of your implmentation.
-    '''
-
     # Create an author
     cursor.execute('INSERT INTO authors (name) VALUES (?)', (author_name,))
-    author_id = cursor.lastrowid # Use this to fetch the id of the newly created author
+    author_id = cursor.lastrowid  # Use this to fetch the id of the newly created author
 
     # Create a magazine
-    cursor.execute('INSERT INTO magazines (name, category) VALUES (?,?)', (magazine_name, magazine_category))
-    magazine_id = cursor.lastrowid # Use this to fetch the id of the newly created magazine
+    cursor.execute('INSERT INTO magazines (name, category) VALUES (?, ?)', (magazine_name, magazine_category))
+    magazine_id = cursor.lastrowid  # Use this to fetch the id of the newly created magazine
 
     # Create an article
     cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)',
@@ -39,32 +33,35 @@ def main():
 
     conn.commit()
 
-    # Query the database for inserted records. 
-    # The following fetch functionality should probably be in their respective models
-
+    # Query the database for inserted records
     cursor.execute('SELECT * FROM magazines')
-    magazines = cursor.fetchall()
+    magazines = cursor.fetchall()  # Fetch magazine data
 
     cursor.execute('SELECT * FROM authors')
-    authors = cursor.fetchall()
+    authors = cursor.fetchall()  # Fetch author data
 
     cursor.execute('SELECT * FROM articles')
-    articles = cursor.fetchall()
+    articles = cursor.fetchall()  # Fetch article data
 
     conn.close()
 
     # Display results
     print("\nMagazines:")
     for magazine in magazines:
-        print(Magazine(magazine["id"], magazine["name"], magazine["category"]))
+        print(Magazine(magazine[0], magazine[1], magazine[2]))  # magazine[0], magazine[1], magazine[2] correspond to id, name, category
 
     print("\nAuthors:")
     for author in authors:
-        print(Author(author["id"], author["name"]))
+        print(Author(author[0], author[1]))  # author[0], author[1] correspond to id, name
 
     print("\nArticles:")
     for article in articles:
-        print(Article(article["id"], article["title"], article["content"], article["author_id"], article["magazine_id"]))
+        # Find the corresponding Author and Magazine objects
+        author_obj = next((author for author in authors if author[0] == article[3]), None)
+        magazine_obj = next((magazine for magazine in magazines if magazine[0] == article[4]), None)
+        
+        if author_obj and magazine_obj:
+            print(Article(article[0], article[1], article[2], author_obj, magazine_obj))
 
 if __name__ == "__main__":
     main()
